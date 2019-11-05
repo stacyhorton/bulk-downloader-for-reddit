@@ -169,6 +169,22 @@ def parseArguments(arguments=[]):
                         metavar="TIME_LIMIT",
                         type=str)
 
+    parser.add_argument("--unsave",
+                        help="Unsave posts after download",
+                        action="store_true",
+                        default=False)
+
+    parser.add_argument("--filter-subreddits",
+                        nargs="+",
+                        help="Downloads only specified subreddit(s) saved items",
+                        metavar="FILTER_SUBREDDIT",
+                        type=str)
+
+    parser.add_argument("--media-only",
+                        help="Don't download text-only posts",
+                        action="store_true",
+                        default=False)
+
     if arguments == []:
         return parser.parse_args()
     else:
@@ -572,6 +588,7 @@ def download(submissions):
               end="")
         print(f" – {submissions[i]['postType'].upper()}",end="",noPrint=True)
 
+        # @todo this does not detect multipart submissions
         if isPostExists(submissions[i]):
             print(f"\n" \
                   f"{submissions[i]['postSubmitter']}_"
@@ -579,15 +596,18 @@ def download(submissions):
             print("It already exists")
             duplicates += 1
             downloadedCount -= 1
+            unsave([submissions[i]])
             continue
 
         try:
             downloadPost(submissions[i])
-        
+            unsave([submissions[i]])
+
         except FileAlreadyExistsError:
             print("It already exists")
             duplicates += 1
             downloadedCount -= 1
+            unsave([submissions[i]])
 
         except ImgurLoginError:
             print(
@@ -658,6 +678,11 @@ def main():
     )
     GLOBAL.arguments = parseArguments()
 
+    # @todo This should be handled in the parser.add_argument() bit
+    if GLOBAL.arguments.filter_subreddits:
+        GLOBAL.arguments.filter_subreddits = [x.lower() for x in GLOBAL.arguments.filter_subreddits]
+
+
     if GLOBAL.arguments.directory is not None:
         GLOBAL.directory = Path(GLOBAL.arguments.directory.strip())
     else:
@@ -687,6 +712,9 @@ def main():
         download(postFromLog(logDir))
         sys.exit()
 
+    if not GLOBAL.arguments.filter_subreddits and GLOBAL.config['filter_subreddits']:
+        GLOBAL.arguments.filter_subreddits = [x.lower() for x in GLOBAL.config['filter_subreddits']]
+
     try:
         POSTS = getPosts(prepareAttributes())
     except Exception as exc:
@@ -705,6 +733,21 @@ def main():
 
     else:
         download(POSTS)
+
+
+def unsave(submissions):
+
+    if not GLOBAL.arguments.unsave:
+        return
+
+    config = GLOBAL.config
+    reddit = beginPraw(config)
+
+    for item in submissions:
+        sub = reddit.submission(id=item['postId'])
+        sub.unsave()
+        print("Unsaving %s" % item['postId'])
+
 
 if __name__ == "__main__":
 
@@ -728,4 +771,4 @@ if __name__ == "__main__":
                       exc_info=full_exc_info(sys.exc_info()))
         print(log_stream.getvalue())
 
-    if not GLOBAL.arguments.quit: input("\nPress enter to quit\n")
+    # if not GLOBAL.arguments.quit: input("\nPress enter to quit\n")

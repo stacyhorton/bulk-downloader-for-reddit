@@ -303,11 +303,12 @@ class Imgur:
 
                 images[i]['Ext'] = getExtension(imageURL)
 
-                fileName = (str(i+1)
-                            + "_"
-                            + nameCorrector(str(images[i]['title']))
-                            + "_"
-                            + images[i]['id'])
+                # fileName = (str(i+1)
+                #             + "_"
+                #             + nameCorrector(str(images[i]['title']))
+                #             + "_"
+                #             + images[i]['id'])
+                fileName = '%02d_%s_%s' % ( i+1, nameCorrector(str(images[i]['title'])), images[i]['id'] )
 
                 """Filenames are declared here"""
 

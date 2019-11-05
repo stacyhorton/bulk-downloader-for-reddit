@@ -75,8 +75,8 @@ def beginPraw(config,user_agent = str(socket.gethostname())):
             return (self.redditInstance,refresh_token)
 
     """Start reddit instance"""
-    
-    scopes = ['identity','history','read']
+
+    scopes = ['identity','history','read','save']
     port = "1337"
     arguments = {
         "client_id":GLOBAL.reddit_client_id,
@@ -399,6 +399,10 @@ def checkIfMatching(submission):
     global directCount
     global selfCount
 
+    if GLOBAL.arguments.filter_subreddits:
+        if not str(submission.subreddit).lower() in GLOBAL.arguments.filter_subreddits:
+            return None
+
     try:
         details = {'postId':submission.id,
                    'postTitle':submission.title,
@@ -425,6 +429,8 @@ def checkIfMatching(submission):
         return details
 
     elif submission.is_self:
+        if GLOBAL.arguments.media_only:
+            return None
         details['postType'] = 'self'
         details['postContent'] = submission.selftext
         selfCount += 1
