@@ -65,7 +65,7 @@ def beginPraw(config,user_agent = str(socket.gethostname())):
             elif 'error' in params:
                 self.send_message(client, params['error'])
                 raise RedditLoginFailed
-            
+
             refresh_token = self.redditInstance.auth.authorize(params['code'])
             self.send_message(
                 "<script>" \
@@ -163,7 +163,7 @@ def getPosts(args):
                     subreddit=args["subreddit"],
                     time=args["time"]
                 ).upper(),noPrint=True
-            )            
+            )
             return redditSearcher(
                 reddit.subreddit(args["subreddit"]).search(
                     args["search"],
@@ -175,13 +175,13 @@ def getPosts(args):
 
         elif "multireddit" in args:
             raise NoPrawSupport("PRAW does not support that")
-        
+
         elif "user" in args:
             raise NoPrawSupport("PRAW does not support that")
 
         elif "saved" in args:
             raise ("Reddit does not support that")
-    
+
     if args["sort"] == "relevance":
         raise InvalidSortingType("Invalid sorting type has given")
 
@@ -211,7 +211,7 @@ def getPosts(args):
                 getattr(reddit.front,args["sort"]) (**keyword_params)
             )
 
-        else:  
+        else:
             print (
                 "subreddit: {subreddit}\nsort: {sort}\n" \
                 "time: {time}\nlimit: {limit}\n".format(
@@ -316,7 +316,7 @@ def redditSearcher(posts,SINGLE_POST=False):
 
     if SINGLE_POST:
         submission = posts
-        subCount += 1 
+        subCount += 1
         try:
             details = {'postId':submission.id,
                        'postTitle':submission.title,
@@ -373,7 +373,7 @@ def redditSearcher(posts,SINGLE_POST=False):
                 allPosts[subCount] = [details]
         except KeyboardInterrupt:
             print("\nKeyboardInterrupt",noPrint=True)
-        
+
         postsFile.add(allPosts)
 
     if not len(subList) == 0:
@@ -479,7 +479,7 @@ def isDirectLink(URL):
     elif "v.redd.it" in URL:
         bitrates = ["DASH_1080","DASH_720","DASH_600", \
                     "DASH_480","DASH_360","DASH_240"]
-                    
+
         for bitrate in bitrates:
             videoURL = URL+"/"+bitrate
 

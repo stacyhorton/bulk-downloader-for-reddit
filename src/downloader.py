@@ -102,7 +102,7 @@ class Erome:
         duplicates = 0
 
         if imagesLenght == 1:
-            
+
             extension = getExtension(IMAGES[0])
 
             """Filenames are declared here"""
@@ -144,7 +144,7 @@ class Erome:
                 os.makedirs(folderDir)
 
             for i in range(imagesLenght):
-                
+
                 extension = getExtension(IMAGES[i])
 
                 fileName = str(i+1)
@@ -188,7 +188,7 @@ class Erome:
                 )
 
     def getLinks(self,url,lineNumber=129):
- 
+
         content = []
         lineNumber = None
 
@@ -204,7 +204,7 @@ class Erome:
             obj = EromeParser()
             obj.feed(pageSource[i])
             tag = obj.tag
-            
+
             if tag is not None:
                 if "div" in tag:
                     if "id" in tag["div"]:
@@ -223,7 +223,7 @@ class Erome:
                             content.append(tag["img"]["src"])
                 elif "source" in tag:
                     content.append(tag["source"]["src"])
-                    
+
         return [
             link for link in content \
             if link.endswith("_480p.mp4") or not link.endswith(".mp4")
@@ -246,7 +246,7 @@ class Imgur:
                 post['mediaURL'] = content['object'].link
 
             post['postExt'] = getExtension(post['mediaURL'])
-            
+
             title = nameCorrector(post['postTitle'])
 
             """Filenames are declared here"""
@@ -256,14 +256,14 @@ class Imgur:
             fileDir = directory / (
                 post["postSubmitter"]
                 + "_" + title
-                + "_" + post['postId'] 
+                + "_" + post['postId']
                 + post['postExt']
             )
 
             tempDir = directory / (
                 post["postSubmitter"]
-                + "_" + title 
-                + "_" + post['postId'] 
+                + "_" + title
+                + "_" + post['postId']
                 + ".tmp"
             )
 
@@ -358,7 +358,7 @@ class Imgur:
                 raise AlbumNotDownloadedCompletely(
                     "Album Not Downloaded Completely"
                 )
-    
+
     @staticmethod
     def initImgur():
         """Initialize imgur api"""
@@ -412,7 +412,7 @@ class Gfycat:
             raise NotADownloadableLinkError("Could not read the page source")
 
         POST['postExt'] = getExtension(POST['mediaURL'])
-        
+
         if not os.path.exists(directory): os.makedirs(directory)
         title = nameCorrector(POST['postTitle'])
 
@@ -426,7 +426,7 @@ class Gfycat:
         tempDir = directory / (
             POST["postSubmitter"]+"_"+title+"_"+POST['postId']+".tmp"
         )
-        
+
         try:
             getFile(fileDir,tempDir,POST['mediaURL'])
         except FileNameTooLong:
@@ -434,7 +434,7 @@ class Gfycat:
             tempDir = directory / (POST['postId']+".tmp")
 
             getFile(fileDir,tempDir,POST['mediaURL'])
-      
+
     def getLink(self, url, query='<source id="mp4Source" src=', lineNumber=105):
         """Extract direct link to the video from page's source
         and return it
@@ -497,10 +497,10 @@ class Self:
         fileDir = directory / (
             post["postSubmitter"]+"_"+title+"_"+post['postId']+".md"
         )
-        
+
         if Path.is_file(fileDir):
             raise FileAlreadyExistsError
-            
+
         try:
             self.writeToFile(fileDir,post)
         except FileNotFoundError:
@@ -508,10 +508,10 @@ class Self:
             fileDir = directory / fileDir
 
             self.writeToFile(fileDir,post)
-    
+
     @staticmethod
     def writeToFile(directory,post):
-        
+
         """Self posts are formatted here"""
         content = ("## ["
                    + post["postTitle"]
@@ -532,5 +532,5 @@ class Self:
 
         with io.open(directory,"w",encoding="utf-8") as FILE:
             VanillaPrint(content,file=FILE)
-        
+
         print("Downloaded")
